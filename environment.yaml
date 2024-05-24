@@ -164,4 +164,4 @@ dependencies:
   - zipp=3.17.0=py39h06a4308_0
   - zlib=1.2.13=hd590300_5
   - zstd=1.5.5=hfc55251_0
-prefix: /home/hmcgrat/miniconda3/envs/ERMDL_ENV
+prefix: /home/hmcgrat/miniconda3/envs/LNC_ENV
