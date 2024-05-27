@@ -157,23 +157,22 @@ def relabel_chains(pdb_in, pdb_out, chain_map):
 
 def get_selection_keyword_indices(pdb, selection_name, selection_keyword):
     universe = mda.Universe(pdb)
-    center_coords_cylinder = universe.select_atoms(sd.REFERENCE_POINT_FOR_CYLINDER).center_of_geometry()
-    center_coords_sphere = universe.select_atoms(sd.REFERENCE_POINT_FOR_SPHERE).center_of_geometry()
+    reference_point = universe.select_atoms(sd.REFERENCE_POINT).center_of_geometry()
+    selection_keyword += f" and ({sd.HEAVY_ATOMS_SELECTION_KEYWORD}) or {sd.NUCLEIC_PRUNED_SELECTION_KEYWORD} and (not {sd.REFERENCE_POINT})"
     segment_selection_dict = {
-        "q1": f" and (prop x > {center_coords_cylinder[0]} and prop y > {center_coords_cylinder[1]})",
-        "q2": f" and (prop x > {center_coords_cylinder[0]} and prop y < {center_coords_cylinder[1]})",
-        "q3": f" and (prop x < {center_coords_cylinder[0]} and prop y < {center_coords_cylinder[1]})",
-        "q4": f" and (prop x < {center_coords_cylinder[0]} and prop y > {center_coords_cylinder[1]})",
-        "e1": f" and (prop x > {center_coords_sphere[0]} and prop y > {center_coords_sphere[1]} and prop z > {center_coords_sphere[2]})",
-        "e2": f" and (prop x < {center_coords_sphere[0]} and prop y > {center_coords_sphere[1]} and prop z > {center_coords_sphere[2]})",
-        "e3": f" and (prop x > {center_coords_sphere[0]} and prop y < {center_coords_sphere[1]} and prop z > {center_coords_sphere[2]})",
-        "e4": f" and (prop x > {center_coords_sphere[0]} and prop y > {center_coords_sphere[1]} and prop z < {center_coords_sphere[2]})",
-        "e5": f" and (prop x < {center_coords_sphere[0]} and prop y < {center_coords_sphere[1]} and prop z > {center_coords_sphere[2]})",
-        "e6": f" and (prop x < {center_coords_sphere[0]} and prop y > {center_coords_sphere[1]} and prop z < {center_coords_sphere[2]})",
-        "e7": f" and (prop x > {center_coords_sphere[0]} and prop y < {center_coords_sphere[1]} and prop z < {center_coords_sphere[2]})",
-        "e8": f" and (prop x < {center_coords_sphere[0]} and prop y < {center_coords_sphere[1]} and prop z < {center_coords_sphere[2]})",
+        "e1": f" and (prop x > {reference_point[0]} and prop y > {reference_point[1]} and prop z > {reference_point[2]})",
+        "e2": f" and (prop x < {reference_point[0]} and prop y > {reference_point[1]} and prop z > {reference_point[2]})",
+        "e3": f" and (prop x > {reference_point[0]} and prop y < {reference_point[1]} and prop z > {reference_point[2]})",
+        "e4": f" and (prop x > {reference_point[0]} and prop y > {reference_point[1]} and prop z < {reference_point[2]})",
+        "e5": f" and (prop x < {reference_point[0]} and prop y < {reference_point[1]} and prop z > {reference_point[2]})",
+        "e6": f" and (prop x < {reference_point[0]} and prop y > {reference_point[1]} and prop z < {reference_point[2]})",
+        "e7": f" and (prop x > {reference_point[0]} and prop y < {reference_point[1]} and prop z < {reference_point[2]})",
+        "e8": f" and (prop x < {reference_point[0]} and prop y < {reference_point[1]} and prop z < {reference_point[2]})",
     }
-    selection_keyword = f"({sd.HEAVY_ATOMS_SELECTION_KEYWORD} and protein) or {sd.NUCLEIC_PRUNED_SELECTION_KEYWORD} and (not segid P Q) and ({selection_keyword})"
+    if "grid" in selection_name:
+        grid_point = np.array([int(grid_point_coordinate) for grid_point_coordinate in selection_name.split("_")[-1].split(":")])
+        grid_point += reference_point
+        selection_keyword += f" and byres point {grid_point[0]} {grid_point[1]} {grid_point[2]} {sd.GRID_POINT_RADIUS}"
     for segment_name, segment_selection_keyword in segment_selection_dict.items():
         if segment_name in selection_name:
             selection_keyword += segment_selection_keyword

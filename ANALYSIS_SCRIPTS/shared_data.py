@@ -1,3 +1,6 @@
+from itertools import product
+
+
 N_TRJ = 20
 # pruned individual trajectory length
 TRJ_LEN = ...
@@ -20,9 +23,15 @@ PAIRS = {
 ALIGNMENT_SELECTION = "name CA P"
 HEAVY_ATOMS_SELECTION_KEYWORD = "type C O N S P"
 NUCLEIC_PRUNED_SELECTION_KEYWORD = "(nucleic and (nucleicbackbone or name C1' C4' N1 N3 C5 C8))"
-REFERENCE_POINT_FOR_SPHERE = "segid 9"
+REFERENCE_POINT = "segid 9"
+GRID_SPACING = 30
+GRID_POINT_RADIUS = 15
+GRID_RANGE_X = range(-3*GRID_SPACING, 4*GRID_SPACING, GRID_SPACING)
+GRID_RANGE_Y = range(-3*GRID_SPACING, 4*GRID_SPACING, GRID_SPACING)
+GRID_RANGE_Z = range(-2*GRID_SPACING, 3*GRID_SPACING, GRID_SPACING)
+GRID_POINTS = product(GRID_RANGE_X, GRID_RANGE_Y, GRID_RANGE_Z)
 SELECTION_DICT = {
-    ...
+    f"grid_{i}:{j}:{k}": "all" for i, j, k in GRID_POINTS
 }
 
 DIM_REDUCTION_HPS = {
