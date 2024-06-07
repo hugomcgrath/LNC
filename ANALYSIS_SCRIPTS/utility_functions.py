@@ -3,6 +3,7 @@ import shared_data as sd
 from config_file_utils import ConfigFile
 from scipy.stats import sem
 import MDAnalysis as mda
+from MDAnalysis.analysis.bat import BAT
 
 
 def extract_trj(aligned_u, selection_keyword="all"):
@@ -76,6 +77,10 @@ def get_X(aligned_u, config_dict):
         X = get_cartesian_averaged_features(X, **feature_hps)
     elif feature_type == "rmsf":
         X = get_rmsf_features(X, **feature_hps)
+    elif feature_type == "bat":
+        bat_object = BAT(aligned_u)
+        bat_object.run()
+        X = bat_object.results.bat
     return X
 
 
