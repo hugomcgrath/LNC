@@ -91,9 +91,13 @@ def get_y(config_file):
         y[partition_name] = np.zeros(
             partition_n_trj * sd.TRJ_LEN * len(sd.PAIRS[config_file.pair_name])
         )
-        y[partition_name][:partition_n_trj*sd.TRJ_LEN] = 1
+        if sd.WRONG_LABELS:
+            y[partition_name][partition_n_trj*sd.TRJ_LEN//2:partition_n_trj*sd.TRJ_LEN] = 1
+            y[partition_name][3*(partition_n_trj*sd.TRJ_LEN//2):] = 1
+        else:
+            y[partition_name][:partition_n_trj*sd.TRJ_LEN] = 1
 
-        if feature_type == "cartesian":
+        if (feature_type == "cartesian") or (feature_type == "bat"):
             pass
         elif feature_type == "rmsf" or feature_type == "cartesian_averaged":
             if not feature_hps["overlapping"]:
@@ -187,3 +191,12 @@ def get_selection_keyword_indices(pdb, selection_name, selection_keyword):
     for index in selection.indices:
         selection_keyword_indices += f" {index}"
     return selection_keyword_indices
+
+
+def get_time_windowed_data(data, time_window_index):
+    for partition_name, partition_n_trj in sd.PARTITION_N_TRJS.items():
+        n_subarrays = sd.N_TIME_WINDOWS * partition_n_trj * len(sd.PAIRS["LNC_NONE"])
+        subarray_list = np.split(data[partition_name], n_subarrays, axis=0)
+        time_windowed_data = {}
+        time_windowed_data[partition_name] = np.concatenate(subarray_list[time_window_index::sd.N_TIME_WINDOWS], axis=0)
+    return time_windowed_data

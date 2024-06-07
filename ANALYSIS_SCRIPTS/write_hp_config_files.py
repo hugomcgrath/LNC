@@ -11,6 +11,7 @@ def backup():
     os.system(f"cp -r {sd.CONFIG_FILES_DIR} {sd.CONFIG_FILES_DIR}_{time_identifier}")
     os.system(f"cp -r {sd.CONFIG_FILES_BEST_DIR} {sd.CONFIG_FILES_BEST_DIR}_{time_identifier}")
     os.system(f"cp -r {sd.RESULTS} {sd.RESULTS}_{time_identifier}")
+    os.system(f"cp -r {sd.LOGS} {sd.LOGS}_{time_identifier}")
 
 
 def generate_configs(step_name, hps_dict):
@@ -36,7 +37,7 @@ else:
 
 user_input = input("Rewrite old results and config files? ([y]/n): ")
 if user_input != "n":
-    os.system(f"rm {sd.CONFIG_FILES_DIR}/* {sd.CONFIG_FILES_BEST_DIR}/* {sd.RESULTS}/*")
+    os.system(f"rm {sd.CONFIG_FILES_DIR}/* {sd.CONFIG_FILES_BEST_DIR}/* {sd.RESULTS}/* {sd.LOGS}/*")
     print("Rewriting")
 else:
     print("Not rewriting")
@@ -46,13 +47,13 @@ configs_pairs = [{"pair_name": pair_name} for pair_name in sd.PAIRS]
 configs_selections = [{"selection_name": selection_name} for selection_name in sd.SELECTION_DICT]
 configs_dim_reduction = generate_configs("dim_reduction", sd.DIM_REDUCTION_HPS)
 configs_models = generate_configs("model", sd.MODEL_HPS)
-config_features = generate_configs("feature_type", sd.FEATURE_HPS)
+configs_features = generate_configs("feature_type", sd.FEATURE_HPS)
 config_combinations = itertools.product(*[
     configs_pairs, 
     configs_selections, 
     configs_dim_reduction, 
     configs_models, 
-    config_features
+    configs_features
 ])
 for i, config_combination in enumerate(config_combinations):
     pair_name, selection_name, dim_reduction, model, feature_type = config_combination

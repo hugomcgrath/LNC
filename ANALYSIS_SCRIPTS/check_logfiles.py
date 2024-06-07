@@ -9,8 +9,8 @@ for logfile_name in sorted(glob("/home/hmcgrat/LNC/LOGS/*")):
         for line in lines:
             if "Time" in line:
                 line = line.strip()
-                print(f"{cf.config_index}:\t{line}")
+                print(f"config ID {cf.config_index}:\t{line}")
                 all_ok = 1
     if not all_ok:
-        print(f"{cf.config_index}:\tMissing logfile")
+        print(f"config ID {cf.config_index}:\tMissing logfile")
         
