@@ -1,13 +1,15 @@
 antibiotic: chain 9
 VMD doesn't recognize terminal residues as protein, keep in mind, if needed, rename terminal residues
+original timestep: 10 ps
 script run order:
-01) prune_trajectories.sh
-02) get_common_atoms.py
-03) align_trajectories.py
-04) align_antibiotic.py
-05) add_antibiotic.py
-06) write_selections.py
-07) write_hp_config_files.py
-08) find_worst_case_selection.py
-09) run_classification.sh (owl)
-10) check_logfiles.py
+- prune_trajectories.sh
+- get_common_atoms.py
+- align_trajectories.py
+- align_antibiotic.py
+- add_antibiotic_to_pdb.py
+- write_selections.py
+- combine_trajectories.py
+- write_hp_config_files.py
+- find_worst_case_selection.py
+- run_classification.sh (owl)
+- check_logfiles.py

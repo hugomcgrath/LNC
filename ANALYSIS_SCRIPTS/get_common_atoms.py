@@ -1,18 +1,20 @@
 import shared_data as sd
 import MDAnalysis as mda
-from MDAnalysis.analysis.align import AlignTraj
+
 
 # find intersections
 selections = {}
 for system_name, system_path in sd.SYSTEMS.items():
     pdb = f"{system_path}/system.pdb"
+    print(f"Loading {pdb}")
     universe = mda.Universe(pdb)
-    selection = universe.select_atoms("all")
+    selection = universe.select_atoms(f"{sd.HEAVY_ATOMS_SELECTION_KEYWORD} and {sd.NUCLEIC_PRUNED_SELECTION_KEYWORD}")
     selections[system_name] = set([(resid, resname, segid, name) for resid, resname, segid, name in zip(selection.resids, 
                                                                                                         selection.resnames, 
                                                                                                         selection.segids, 
                                                                                                         selection.names)])
 intersection = list(selections['LNC'].intersection(selections['NONE']))
+print(len(intersection))
 
 for system_name, system_path in sd.SYSTEMS.items():
     with open(f"{system_path}/system.pdb", "r") as file_old, open(f"{system_path}/common_atoms.pdb", "w") as file_new:
@@ -46,5 +48,5 @@ for system_name, system_path in sd.SYSTEMS.items():
         selection = universe.select_atoms(selection_string)
         print(f"writing {system_path}/T{trj_index}/common_atoms.xtc")
         selection.write(f"{system_path}/T{trj_index}/common_atoms.xtc",
-                        frames="all")
+                        frames=universe.trajectory[:sd.TRJ_LEN])
         print(f"wrote {system_path}/T{trj_index}/common_atoms.xtc")

@@ -10,17 +10,16 @@ from datetime import timedelta
 import tracemalloc
 
 
+#TODO: add classification in time windows
 def classify_selections(config_file_path, config_file_name):
-
     cf = ConfigFile(f"{config_file_path}/{config_file_name}")
-
     pair_dir = f"{sd.BASE_DIR}/{cf.pair_name}"
     pdb = f"{pair_dir}/{cf.sel_name}.pdb"
-
+    
     y = uf.get_y(cf)
     y_predicted_array = {"train": np.zeros((sd.N_CROSS_VALIDATION_COMBINATIONS, len(y["train"]))),
                      cf.partition_name: np.zeros((sd.N_CROSS_VALIDATION_COMBINATIONS, len(y[cf.partition_name])))}
-
+    
     for cv_index in range(sd.N_CROSS_VALIDATION_COMBINATIONS):
         uni = {
             "train": mda.Universe(pdb, f"{pair_dir}/{cf.sel_name}_train_{cv_index}.xtc"),

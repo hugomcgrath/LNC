@@ -8,9 +8,9 @@ for system_name, system_path in sd.SYSTEMS.items():
     with open(pdb_in, "r") as file_in, open(pdb_lnc, "r") as file_lnc, open(pdb_out, "w") as file_out:
         lines_in = file_in.readlines()
         lines_lnc = file_lnc.readlines()
-        index = int(lines_in[-2][6:11]) + 1
+        index = int(lines_in[-3][6:11]) + 1
         for line in lines_in:
-            if "END" not in line:
+            if "END" not in line and "TER" not in line:
                 file_out.write(line)
         for line in lines_lnc:
             if "ATOM" in line and line[21].strip() == "9":

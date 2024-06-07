@@ -1,10 +1,12 @@
 #!/bin/bash
 
-PRUNING_FACTOR= #to be determined
+# original timestep = 10 ps
+# new timestep = 20 ps
+PRUNING_FACTOR=2
 SYSTEMS=("LNC" "NONE")
 for system in ${SYSTEMS[@]}; do
     for i in {1..20}; do
-        DIR=/home/hmcgrat/ERMDL/$system/T$i
+        DIR=/home/hmcgrat/LNC/$system/T$i
         XTC_IN=$DIR/traj_comp.xtc
         XTC_OUT=$DIR/traj_pruned.xtc
         echo pruning $XTC_IN

@@ -7,13 +7,13 @@
 #$ -V
 #$ -o /home/hmcgrat/LNC/LOGS
 #$ -j y
-#$ -l h_data=1.5G # find appropriate amount of memory for worst case job
-#$ -t 1-1280 # check nuber of config files, set -t bounds to 1 to config_id_max+1
-#===============================================================================
+# Find appropriate amount of memory for worst case job
+#$ -l h_data=6.5G
+# Check nuber of config files, set -t bounds to 1 to config_id_max+1
+#$ -t 1-8
  
 # Do not ignore signals:
 #$ -notify
-#
 trap "" TERM
 
 SCRIPT_PATH=$HOME/LNC/ANALYSIS_SCRIPTS

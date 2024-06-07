@@ -40,14 +40,13 @@ if user_input != "n":
     print("Rewriting")
 else:
     print("Not rewriting")
-config_index_offset = len(os.listdir(sd.CONFIG_FILES_DIR))
 
+config_index_offset = len(os.listdir(sd.CONFIG_FILES_DIR))
 configs_pairs = [{"pair_name": pair_name} for pair_name in sd.PAIRS]
 configs_selections = [{"selection_name": selection_name} for selection_name in sd.SELECTION_DICT]
 configs_dim_reduction = generate_configs("dim_reduction", sd.DIM_REDUCTION_HPS)
 configs_models = generate_configs("model", sd.MODEL_HPS)
 config_features = generate_configs("feature_type", sd.FEATURE_HPS)
-
 config_combinations = itertools.product(*[
     configs_pairs, 
     configs_selections, 
@@ -66,5 +65,18 @@ for i, config_combination in enumerate(config_combinations):
         yaml.dump(model, config_file)
         yaml.dump(feature_type, config_file)
         yaml.dump({"partition_name": "validation"}, config_file)
-print("Don't forget to modify run file!")
+
+with open(f"{sd.BASE_DIR}/ANALYSIS_SCRIPTS/run_classification.sh", "r") as file_in:
+    lines_in = file_in.readlines()
+    lines_out = []
+    for line in lines_in:
+        if "#$ -t" in line:
+            lines_out.append(f"#$ -t {1+config_index_offset}-{len(os.listdir(sd.CONFIG_FILES_DIR))}\n")
+        else:
+            lines_out.append(line)
+            
+with open(f"{sd.BASE_DIR}/ANALYSIS_SCRIPTS/run_classification.sh", "w") as file:
+    for line in lines_out:
+        file.write(line)
+print("Modified run script")
 print(f"#$ -t {1+config_index_offset}-{len(os.listdir(sd.CONFIG_FILES_DIR))}")

@@ -3,7 +3,7 @@ from MDAnalysis.analysis.align import alignto
 import shared_data as sd
 
 
-alignment_keyword = "not segid 9"
+alignment_keyword = f"not segid 9 and {sd.HEAVY_ATOMS_SELECTION_KEYWORD} and {sd.NUCLEIC_PRUNED_SELECTION_KEYWORD}"
 system_path = sd.SYSTEMS["LNC"]
 reference_pdb_path = f"{system_path}/common_atoms.pdb"
 reference = mda.Universe(reference_pdb_path)
