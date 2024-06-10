@@ -11,7 +11,7 @@ for selection_name, selection_keyword in sd.SELECTION_DICT.items():
         for trj_index in range(1, sd.N_TRJ+1):
             xtc = f"{system_path}/T{trj_index}/aligned_common_atoms.xtc"
             universe = mda.Universe(pdb, xtc)
-            selection = universe.select_atoms(selection_keyword_indices)
-            selection.write(f"{system_path}/{selection_name}.pdb")
-            selection.write(f"{system_path}/T{trj_index}/{selection_name}.xtc", frames="all")
-            print(f"wrote {system_path}/T{trj_index}/{selection_name}.xtc, n_atoms={selection.n_atoms}")
+            # selection = universe.select_atoms(selection_keyword_indices)
+            # selection.write(f"{system_path}/{selection_name}.pdb")
+            # selection.write(f"{system_path}/T{trj_index}/{selection_name}.xtc", frames="all")
+            # print(f"wrote {system_path}/T{trj_index}/{selection_name}.xtc, n_atoms={selection.n_atoms}")

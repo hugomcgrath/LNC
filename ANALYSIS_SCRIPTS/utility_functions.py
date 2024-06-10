@@ -29,7 +29,12 @@ def extract_trj(aligned_u, selection_keyword="all"):
     X = np.zeros((n_frames, 3 * n_atoms))
     # fill array, for every frame insert structure coordinates
     for frame, _ in enumerate(trj):
-        X[frame, :] = atomgroup.positions.ravel()
+        if sd.NORMALIZE_BY_AVERAGE:
+            x = atomgroup.positions
+            average_norm = np.mean(np.linalg.norm(x, axis=1))
+            X[frame, :] = (x / average_norm).ravel()
+        else:
+            X[frame, :] = atomgroup.positions.ravel()
     return X
 
 
@@ -77,10 +82,11 @@ def get_X(aligned_u, config_dict):
         X = get_cartesian_averaged_features(X, **feature_hps)
     elif feature_type == "rmsf":
         X = get_rmsf_features(X, **feature_hps)
-    elif feature_type == "bat":
-        bat_object = BAT(aligned_u)
-        bat_object.run()
-        X = bat_object.results.bat
+    # missing bonds, doesn't work
+    # elif feature_type == "bat":
+    #     bat_object = BAT(aligned_u)
+    #     bat_object.run()
+    #     X = bat_object.results.bat
     return X
 
 
@@ -92,8 +98,12 @@ def get_y(config_file):
             partition_n_trj * sd.TRJ_LEN * len(sd.PAIRS[config_file.pair_name])
         )
         if sd.WRONG_LABELS:
-            y[partition_name][partition_n_trj*sd.TRJ_LEN//2:partition_n_trj*sd.TRJ_LEN] = 1
-            y[partition_name][3*(partition_n_trj*sd.TRJ_LEN//2):] = 1
+            y[partition_name][np.random.choice(range(partition_n_trj*sd.TRJ_LEN), size=partition_n_trj*sd.TRJ_LEN//2, replace=False)] = 1
+            y[partition_name][np.random.choice(
+                range(partition_n_trj*sd.TRJ_LEN, partition_n_trj*sd.TRJ_LEN*len(sd.PAIRS[config_file.pair_name])), 
+                size=partition_n_trj*sd.TRJ_LEN//2, 
+                replace=False
+            )] = 1
         else:
             y[partition_name][:partition_n_trj*sd.TRJ_LEN] = 1
 
@@ -167,7 +177,7 @@ def relabel_chains(pdb_in, pdb_out, chain_map):
 def get_selection_keyword_indices(pdb, selection_name, selection_keyword):
     universe = mda.Universe(pdb)
     reference_point = universe.select_atoms(sd.REFERENCE_POINT).center_of_geometry()
-    selection_keyword += f" and ({sd.HEAVY_ATOMS_SELECTION_KEYWORD}) or {sd.NUCLEIC_PRUNED_SELECTION_KEYWORD} and (not {sd.REFERENCE_POINT})"
+    selection_keyword += f" and (({sd.HEAVY_ATOMS_SELECTION_KEYWORD}) or {sd.NUCLEIC_PRUNED_SELECTION_KEYWORD} and (not {sd.REFERENCE_POINT}))"
     segment_selection_dict = {
         "e1": f" and (prop x > {reference_point[0]} and prop y > {reference_point[1]} and prop z > {reference_point[2]})",
         "e2": f" and (prop x < {reference_point[0]} and prop y > {reference_point[1]} and prop z > {reference_point[2]})",
@@ -178,15 +188,16 @@ def get_selection_keyword_indices(pdb, selection_name, selection_keyword):
         "e7": f" and (prop x > {reference_point[0]} and prop y < {reference_point[1]} and prop z < {reference_point[2]})",
         "e8": f" and (prop x < {reference_point[0]} and prop y < {reference_point[1]} and prop z < {reference_point[2]})",
     }
-    if "grid" in selection_name:
-        grid_point = np.array([int(grid_point_coordinate) for grid_point_coordinate in selection_name.split("_")[-1].split(":")])
-        grid_point += reference_point
-        selection_keyword += f" and byres point {grid_point[0]} {grid_point[1]} {grid_point[2]} {sd.GRID_POINT_RADIUS}"
+    # if "grid" in selection_name:
+    #     grid_point = np.array([float(grid_point_coordinate) for grid_point_coordinate in selection_name.split("_")[-1].split(":")])
+    #     grid_point += reference_point
+    #     selection_keyword += f" and point {grid_point[0]} {grid_point[1]} {grid_point[2]} {sd.GRID_POINT_RADIUS}"
     for segment_name, segment_selection_keyword in segment_selection_dict.items():
         if segment_name in selection_name:
             selection_keyword += segment_selection_keyword
 
     selection = universe.select_atoms(selection_keyword, updating=False)
+    print(selection.center_of_geometry())
     selection_keyword_indices = "index"
     for index in selection.indices:
         selection_keyword_indices += f" {index}"

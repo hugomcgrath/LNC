@@ -9,7 +9,7 @@ N_CROSS_VALIDATION_COMBINATIONS = 20
 N_TIME_WINDOWS = 1
 # if set to True, half of the labels are set to incorrect values
 # this should ideally result in accuracy close to 0.5
-WRONG_LABELS = True
+WRONG_LABELS = False
 NORMALIZE_BY_AVERAGE = True
 
 BASE_DIR = "/home/hmcgrat/LNC"
@@ -33,7 +33,7 @@ HEAVY_ATOMS_SELECTION_KEYWORD = "type C O N S P"
 NUCLEIC_PRUNED_SELECTION_KEYWORD = "(nucleic and (nucleicbackbone or name C1' C4' N1 N3 C5 C8))"
 REFERENCE_POINT = "segid 9"
 
-# # selections around grid points
+# selections around grid points
 # GRID_SPACING = 30
 # GRID_POINT_RADIUS = 15
 # GRID_RANGE_X = range(-3*GRID_SPACING, 4*GRID_SPACING, GRID_SPACING)
@@ -66,7 +66,7 @@ FEATURE_HPS = {
     "cartesian": {},
     # "cartesian_averaged": {"window_width": [10], "overlapping": [False]},
     # "rmsf": {"window_width": [10], "overlapping": [False]},
-    "bat": {},
+    # "bat": {},
 }
 PARTITION_PERCENTAGES = {
     "train": 0.6,

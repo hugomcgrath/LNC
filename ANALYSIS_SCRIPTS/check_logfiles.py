@@ -1,7 +1,13 @@
 from glob import glob
 import utility_functions as uf
 
-for logfile_name in sorted(glob("/home/hmcgrat/LNC/LOGS/*")):
+
+def extract_logfile_id(logfile_name):
+    return int(logfile_name.split(".")[-1])
+
+
+logfile_names = glob("/home/hmcgrat/LNC/LOGS/*")
+for logfile_name in sorted(logfile_names, key=extract_logfile_id):
     cf = uf.get_config_file_from_file_path(logfile_name, type_of_file="log")
     all_ok = 0
     with open(logfile_name, "r") as logfile:

@@ -29,14 +29,15 @@ for selection_name in sd.SELECTION_DICT:
                         xtc_list.append(xtc)
                 universe = mda.Universe(pdb, xtc_list)
                 selection = universe.select_atoms("all")
-                if sd.NORMALIZE_BY_AVERAGE:
-                    X = np.zeros((len(universe.trajectory), selection.n_atoms, 3))
-                    for frame_index, _ in enumerate(universe.trajectory):
-                        x = selection.positions
-                        average_norm = np.mean(np.linalg.norm(x, axis=1))
-                        X[frame_index, :, :] = x / average_norm
-                    universe = mda.Universe(pdb, X, format=MemoryReader, order="fac")
-                    selection = universe.select_atoms("all")
+                # leads to weird mdanalysis bugs
+                # if sd.NORMALIZE_BY_AVERAGE:
+                #     X = np.zeros((len(universe.trajectory), selection.n_atoms, 3))
+                #     for frame_index, _ in enumerate(universe.trajectory):
+                #         x = selection.positions
+                #         average_norm = np.mean(np.linalg.norm(x, axis=1))
+                #         X[frame_index, :, :] = x / average_norm
+                #     universe = mda.Universe(pdb, X, format=MemoryReader, order="fac")
+                #     selection = universe.select_atoms("all")
                 selection.write(f"{sd.BASE_DIR}/{pair_name}/{selection_name}.pdb")
                 selection.write(f"{sd.BASE_DIR}/{pair_name}/{selection_name}_{partition_name}_{cv_index}.xtc", frames="all")
                 print(f"wrote {sd.BASE_DIR}/{pair_name}/{selection_name}_{partition_name}_{cv_index}.xtc")
