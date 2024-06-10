@@ -5,7 +5,7 @@ import subprocess
 
 
 for system_name, system_path in sd.SYSTEMS.items():
-    for trj_index in range(2, sd.N_TRJ+1):
+    for trj_index in range(1, sd.N_TRJ+1):
         for selection_name in sd.SELECTION_DICT:
             mobile = mda.Universe(f"{system_path}/{selection_name}.pdb",
                                   f"{system_path}/T{trj_index}/{selection_name}.xtc")

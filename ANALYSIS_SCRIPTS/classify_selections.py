@@ -49,7 +49,7 @@ def classify_selections(config_file_path, config_file_name):
                 os.makedirs(RESULTS)
         else:
             RESULTS = sd.RESULTS
-            
+
         result_file_name = {
             "train": f"{RESULTS}/y_{cf.pair_name}_{cf.sel_name}_{cf.dim_reduction_name}_{cf.model_name}_{cf.feature_type}_train_{cf.config_index}.npy",
             cf.partition_name: f"{RESULTS}/y_{cf.pair_name}_{cf.sel_name}_{cf.dim_reduction_name}_{cf.model_name}_{cf.feature_type}_{cf.partition_name}_{cf.config_index}.npy"

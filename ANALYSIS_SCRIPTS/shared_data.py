@@ -4,12 +4,13 @@ from itertools import product
 N_TRJ = 20
 # pruned individual trajectory length
 TRJ_LEN = 700
-N_CROSS_VALIDATION_COMBINATIONS = 10
+N_CROSS_VALIDATION_COMBINATIONS = 20
 # setting to 1 means no time windowing
 N_TIME_WINDOWS = 1
 # if set to True, half of the labels are set to incorrect values
 # this should ideally result in accuracy close to 0.5
 WRONG_LABELS = True
+NORMALIZE_BY_AVERAGE = True
 
 BASE_DIR = "/home/hmcgrat/LNC"
 RESULTS = f"{BASE_DIR}/RESULTS"
@@ -44,9 +45,10 @@ REFERENCE_POINT = "segid 9"
 # }
 
 # spherical layers
-R = [15, 25, 31.50, 36.06, 39.69, 42.75, 45.43, 47.82, 50]
+# R = [15, 25, 31.50, 36.06, 39.69, 42.75, 45.43, 47.82, 50]
+R = [0, 20, 25.2, 28.84, 31.75, 34.2, 36.34, 38.26, 40.0, 41.6, 43.09, 44.48, 45.79, 47.03, 48.2, 49.32, 50.4]
 SELECTION_DICT = {
-    f"sphere_layer{i+1}": f"byres sphlayer {R[i]} {R[i+1]} {REFERENCE_POINT}" for i, _ in enumerate(R[:-1])
+    f"sphere_layer{i+1}": f"sphlayer {R[i]} {R[i+1]} {REFERENCE_POINT}" for i, _ in enumerate(R[:-1])
 }
 
 DIM_REDUCTION_HPS = {
@@ -64,7 +66,7 @@ FEATURE_HPS = {
     "cartesian": {},
     # "cartesian_averaged": {"window_width": [10], "overlapping": [False]},
     # "rmsf": {"window_width": [10], "overlapping": [False]},
-    # "bat": {},
+    "bat": {},
 }
 PARTITION_PERCENTAGES = {
     "train": 0.6,

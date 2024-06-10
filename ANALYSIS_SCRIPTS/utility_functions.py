@@ -194,9 +194,9 @@ def get_selection_keyword_indices(pdb, selection_name, selection_keyword):
 
 
 def get_time_windowed_data(data, time_window_index):
-    for partition_name, partition_n_trj in sd.PARTITION_N_TRJS.items():
-        n_subarrays = sd.N_TIME_WINDOWS * partition_n_trj * len(sd.PAIRS["LNC_NONE"])
+    time_windowed_data = {}
+    for partition_name in data:
+        n_subarrays = sd.N_TIME_WINDOWS * sd.PARTITION_N_TRJS[partition_name] * len(sd.PAIRS["LNC_NONE"])
         subarray_list = np.split(data[partition_name], n_subarrays, axis=0)
-        time_windowed_data = {}
         time_windowed_data[partition_name] = np.concatenate(subarray_list[time_window_index::sd.N_TIME_WINDOWS], axis=0)
     return time_windowed_data

@@ -2,7 +2,6 @@ import shared_data as sd
 import MDAnalysis as mda
 import utility_functions as uf
 from glob import glob
-from config_file_utils import ConfigFile
 
 
 base_accuracy = 0.5

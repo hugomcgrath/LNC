@@ -27,8 +27,10 @@ def ml_pipeline(X_train, X_test, y_train, config_dict):
     elif model_name == "random_forest":
         model = RandomForestClassifier(**model_hps)
 
+    scaler = StandardScaler()
+    
     steps=[
-        ("scaler", StandardScaler()),
+        ("scaler", scaler),
         ("dim_reduction", dim_reduction),
         ("model", model),
     ]
