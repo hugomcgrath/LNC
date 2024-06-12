@@ -5,12 +5,11 @@ import ml_models as mm
 import utility_functions as uf
 import sys
 import os
-import timeit
 from config_file_utils import ConfigFile
-from datetime import timedelta
-import tracemalloc
 
 
+@uf.get_timing
+@uf.get_memory_use
 def classify_selections(config_file_path, config_file_name):
     cf = ConfigFile(f"{config_file_path}/{config_file_name}")
     pair_dir = f"{sd.BASE_DIR}/{cf.pair_name}"
@@ -60,15 +59,6 @@ def classify_selections(config_file_path, config_file_name):
         np.save(result_file_name[cf.partition_name], y_predicted_array[cf.partition_name])
 
 if __name__ == "__main__":
-    start_time = timeit.default_timer()
-    
-    tracemalloc.start()
     config_file_path = sys.argv[1]
     config_file_name = sys.argv[2]
     classify_selections(config_file_path, config_file_name)
-    _, peak = tracemalloc.get_traced_memory()
-    print(f"Peak memory usage: {peak / 10**9:.2f}GB")
-    tracemalloc.stop()
-
-    total_time = timeit.default_timer() - start_time
-    print(f"Time {timedelta(seconds=total_time)}")

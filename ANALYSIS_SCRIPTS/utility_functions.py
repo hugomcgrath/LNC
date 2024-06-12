@@ -3,7 +3,10 @@ import shared_data as sd
 from config_file_utils import ConfigFile
 from scipy.stats import sem
 import MDAnalysis as mda
-from MDAnalysis.analysis.bat import BAT
+import timeit
+from datetime import timedelta
+import tracemalloc
+import functools
 
 
 def extract_trj(aligned_u, selection_keyword="all"):
@@ -98,8 +101,9 @@ def get_y(config_file):
             partition_n_trj * sd.TRJ_LEN * len(sd.PAIRS[config_file.pair_name])
         )
         if sd.WRONG_LABELS:
-            y[partition_name][np.random.choice(range(partition_n_trj*sd.TRJ_LEN), size=partition_n_trj*sd.TRJ_LEN//2, replace=False)] = 1
-            y[partition_name][np.random.choice(
+            rng = np.random.default_rng(0)
+            y[partition_name][rng.choice(range(partition_n_trj*sd.TRJ_LEN), size=partition_n_trj*sd.TRJ_LEN//2, replace=False)] = 1
+            y[partition_name][rng.choice(
                 range(partition_n_trj*sd.TRJ_LEN, partition_n_trj*sd.TRJ_LEN*len(sd.PAIRS[config_file.pair_name])), 
                 size=partition_n_trj*sd.TRJ_LEN//2, 
                 replace=False
@@ -177,7 +181,7 @@ def relabel_chains(pdb_in, pdb_out, chain_map):
 def get_selection_keyword_indices(pdb, selection_name, selection_keyword):
     universe = mda.Universe(pdb)
     reference_point = universe.select_atoms(sd.REFERENCE_POINT).center_of_geometry()
-    selection_keyword += f" and (({sd.HEAVY_ATOMS_SELECTION_KEYWORD}) or {sd.NUCLEIC_PRUNED_SELECTION_KEYWORD} and (not {sd.REFERENCE_POINT}))"
+    selection_keyword += f" and ({sd.HEAVY_ATOMS_SELECTION_KEYWORD}) or {sd.NUCLEIC_PRUNED_SELECTION_KEYWORD} and (not {sd.REFERENCE_POINT})"
     segment_selection_dict = {
         "e1": f" and (prop x > {reference_point[0]} and prop y > {reference_point[1]} and prop z > {reference_point[2]})",
         "e2": f" and (prop x < {reference_point[0]} and prop y > {reference_point[1]} and prop z > {reference_point[2]})",
@@ -188,20 +192,30 @@ def get_selection_keyword_indices(pdb, selection_name, selection_keyword):
         "e7": f" and (prop x > {reference_point[0]} and prop y < {reference_point[1]} and prop z < {reference_point[2]})",
         "e8": f" and (prop x < {reference_point[0]} and prop y < {reference_point[1]} and prop z < {reference_point[2]})",
     }
-    # if "grid" in selection_name:
-    #     grid_point = np.array([float(grid_point_coordinate) for grid_point_coordinate in selection_name.split("_")[-1].split(":")])
-    #     grid_point += reference_point
-    #     selection_keyword += f" and point {grid_point[0]} {grid_point[1]} {grid_point[2]} {sd.GRID_POINT_RADIUS}"
+    if "grid" in selection_name:
+        grid_point = np.array([float(grid_point_coordinate) for grid_point_coordinate in selection_name.split("_")[-1].split(":")])
+        grid_point += reference_point
+        selection_keyword += (
+            f" and prop x < {grid_point[0] + sd.GRID_POINT_RADIUS}"
+            f" and prop x > {grid_point[0] - sd.GRID_POINT_RADIUS}"
+            f" and prop y < {grid_point[1] + sd.GRID_POINT_RADIUS}"
+            f" and prop y > {grid_point[1] - sd.GRID_POINT_RADIUS}"
+            f" and prop z < {grid_point[2] + sd.GRID_POINT_RADIUS}"
+            f" and prop z > {grid_point[2] - sd.GRID_POINT_RADIUS}"
+        )
+
     for segment_name, segment_selection_keyword in segment_selection_dict.items():
         if segment_name in selection_name:
             selection_keyword += segment_selection_keyword
 
     selection = universe.select_atoms(selection_keyword, updating=False)
-    print(selection.center_of_geometry())
-    selection_keyword_indices = "index"
-    for index in selection.indices:
-        selection_keyword_indices += f" {index}"
-    return selection_keyword_indices
+    if selection.n_atoms == 0:
+        return None
+    else:
+        selection_keyword_indices = "index"
+        for index in selection.indices:
+            selection_keyword_indices += f" {index}"
+        return selection_keyword_indices
 
 
 def get_time_windowed_data(data, time_window_index):
@@ -211,3 +225,24 @@ def get_time_windowed_data(data, time_window_index):
         subarray_list = np.split(data[partition_name], n_subarrays, axis=0)
         time_windowed_data[partition_name] = np.concatenate(subarray_list[time_window_index::sd.N_TIME_WINDOWS], axis=0)
     return time_windowed_data
+
+
+def get_timing(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = timeit.default_timer()
+        func(*args, **kwargs)
+        total_time = timeit.default_timer() - start_time
+        print(f"Time {timedelta(seconds=total_time)}")
+    return wrapper
+
+
+def get_memory_use(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        tracemalloc.start()
+        func(*args, **kwargs)
+        _, peak = tracemalloc.get_traced_memory()
+        print(f"Peak memory usage: {peak / 10**9:.2f}GB")
+        tracemalloc.stop()
+    return wrapper

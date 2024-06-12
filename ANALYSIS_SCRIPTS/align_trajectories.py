@@ -1,10 +1,13 @@
 import shared_data as sd
 import MDAnalysis as mda
 from MDAnalysis.analysis.align import AlignTraj
+import utility_functions as uf
+from multiprocessing import Pool
 
 
-for system_name, system_path in sd.SYSTEMS.items():
-    for trj_index in range(1, sd.N_TRJ+1):
+@uf.get_timing
+def align_trajectories(trj_index):
+    for system_name, system_path in sd.SYSTEMS.items():
         mobile = mda.Universe(f"{system_path}/common_atoms.pdb",
                               f"{system_path}/T{trj_index}/common_atoms.xtc")
         # only one common reference
@@ -15,3 +18,7 @@ for system_name, system_path in sd.SYSTEMS.items():
         AlignTraj(mobile, reference, alignment_selection_string, 
                   filename=f"{system_path}/T{trj_index}/aligned_common_atoms.xtc").run()
         print(f"aligned, writing {system_path}/T{trj_index}/aligned_common_atoms.xtc")
+
+pool = Pool()
+trj_indices = range(1, sd.N_TRJ+1)
+pool.map(align_trajectories, trj_indices)
