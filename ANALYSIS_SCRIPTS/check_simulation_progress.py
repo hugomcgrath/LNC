@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 import MDAnalysis as mda
 
 
+units = input("Select units ([n_frames]/GB): ")
+while units != "" and units != "n_frames" and units != "GB":
+    print("Invalid unit")
+    units = input("Select units ([n_frames]/GB): ")
 subprocess.run([f"bash ~/LNC/ANALYSIS_SCRIPTS/copy_trj.sh"], shell=True)
 plt.rcParams.update({'font.size': 18})
 fig, axs = plt.subplots(1, 2, sharey=True)
@@ -16,22 +20,25 @@ for i, (system_name, system_path) in enumerate(sd.SYSTEMS.items()):
     pdb = f"{system_path}/system.pdb"
     for j in x:
         xtc = f"{system_path}/T{j}/traj_comp.xtc"
-        # if os.path.exists(xtc):
-        #     result = subprocess.run([f"du -h {xtc}"], shell=True, stdout=subprocess.PIPE, text=True)
-        #     size_as_str = result.stdout.split("\t")[0]
-        #     if "G" in size_as_str:
-        #         trj_size.append(float(size_as_str.removesuffix("G")))
-        #     elif "M" in size_as_str:
-        #         trj_size.append(float(size_as_str.removesuffix("M")) / 1000)
-        # else:
-        #     trj_size.append(0)
-        u = mda.Universe(pdb, xtc)
-        print(f"{xtc}: {len(u.trajectory)}")
-        trj_size.append(len(u.trajectory))
+        if units == "" or units == "n_frames":
+            u = mda.Universe(pdb, xtc)
+            print(f"{xtc}: {len(u.trajectory)}")
+            trj_size.append(len(u.trajectory))
+            y_label = "# of frames"
+        elif units == "GB":
+            if os.path.exists(xtc):
+                result = subprocess.run([f"du -h {xtc}"], shell=True, stdout=subprocess.PIPE, text=True)
+                size_as_str = result.stdout.split("\t")[0]
+                if "G" in size_as_str:
+                    trj_size.append(float(size_as_str.removesuffix("G")))
+                elif "M" in size_as_str:
+                    trj_size.append(float(size_as_str.removesuffix("M")) / 1000)
+            else:
+                trj_size.append(0)
+            y_label = "Trajectory file size (GB)"
     axs[i].bar(x, trj_size)
     axs[i].set_xticks([_ for _ in range(0, sd.N_TRJ+1, 2)])
     axs[i].set_xlabel("Trajectory index")
     axs[i].set_title(system_name)
-# axs[0].set_ylabel("Trajectory file size (GB)")
-axs[0].set_ylabel("# of frames")
+axs[0].set_ylabel(y_label)
 plt.show()

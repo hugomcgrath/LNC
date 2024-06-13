@@ -43,11 +43,13 @@ else:
     print("Not rewriting")
 
 config_index_offset = len(os.listdir(sd.CONFIG_FILES_DIR))
-configs_pairs = [{"pair_name": pair_name} for pair_name in sd.PAIRS]
+configs_pairs = []
 configs_selections = []
-for selection_name in sd.SELECTION_DICT:
-    if os.path.exists(f"{sd.BASE_DIR}/LNC/{selection_name}.pdb"):
-        configs_selections.append({"selection_name": selection_name})
+for pair_name in sd.PAIRS:
+    configs_pairs.append({"pair_name": pair_name})
+    for selection_name in sd.SELECTION_DICT:
+        if os.path.exists(f"{sd.BASE_DIR}/{pair_name}/{selection_name}.pdb"):
+            configs_selections.append({"selection_name": selection_name})
 configs_dim_reduction = generate_configs("dim_reduction", sd.DIM_REDUCTION_HPS)
 configs_models = generate_configs("model", sd.MODEL_HPS)
 configs_features = generate_configs("feature_type", sd.FEATURE_HPS)

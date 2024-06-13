@@ -21,3 +21,4 @@ for system_name, system_path in sd.SYSTEMS.items():
                 file_out.write(line)
                 index += 1
         file_out.write("END")
+    print(f"wrote {pdb_out}")

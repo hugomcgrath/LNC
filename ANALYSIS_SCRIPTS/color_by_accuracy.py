@@ -8,12 +8,12 @@ def extract_results_file_config_id(result_path):
     return int(result_path.split("_")[-1].split(".")[0])
 
 
+name = "grid_passthrough_linear_colored_by_accuracy"
 base_accuracy = 0.5
 # RESULTS = f"{sd.BASE_DIR}/RESULTS_2024-6-12_9-30-20"
 RESULTS = sd.RESULTS
-pdb = f"{sd.SYSTEMS['LNC']}/common_atoms.pdb"
+pdb = f"{sd.SYSTEMS['LNC']}/added_antibiotic_missing_proteins.pdb"
 universe = mda.Universe(pdb)
-pdb_selection_keywords = f"{sd.SYSTEMS['LNC']}/added_antibiotic.pdb"
 with open(f"{sd.SYSTEMS['LNC']}/config_indices_for_visualization.txt", "w") as file:
     result_paths = sorted(glob(f"{RESULTS}/*passthrough*validation*"), key=extract_results_file_config_id)
     for result_path in result_paths:
@@ -22,7 +22,7 @@ with open(f"{sd.SYSTEMS['LNC']}/config_indices_for_visualization.txt", "w") as f
         selection_name = cf.sel_name
         selection_keyword = sd.SELECTION_DICT[selection_name]
         selection_keyword_indices = uf.get_selection_keyword_indices(
-            pdb_selection_keywords, 
+            pdb, 
             selection_name, 
             selection_keyword,
         )
@@ -37,4 +37,4 @@ selection_not_classified.tempfactors = [base_accuracy for _ in range(selection_n
 selection_not_classified.occupancies = [999 for _ in range(selection_not_classified.n_atoms)]
 selection_all = universe.select_atoms("all")
 print("Writing whole selection with tempfactors set")
-selection_all.write(f"{sd.SYSTEMS['LNC']}/sphere_passthrough_linear_colored_by_accuracy.pdb")
+selection_all.write(f"{sd.SYSTEMS['LNC']}/{name}.pdb")

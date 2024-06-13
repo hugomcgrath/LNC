@@ -8,9 +8,9 @@
 #$ -o /home/hmcgrat/LNC/LOGS
 #$ -j y
 # Find appropriate amount of memory for worst case job
-#$ -l h_data=2G
+#$ -l h_data=1G
 # Check nuber of config files, set -t bounds to 1 to config_id_max+1
-#$ -t 1-216
+#$ -t 1-103
 
 # Do not ignore signals:
 #$ -notify

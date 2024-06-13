@@ -5,9 +5,8 @@ import utility_functions as uf
 from multiprocessing import Pool
 
 
-@uf.get_timing
 def align_trajectories(trj_index):
-    for system_name, system_path in sd.SYSTEMS.items():
+    for system_path in sd.SYSTEMS.values():
         mobile = mda.Universe(f"{system_path}/common_atoms.pdb",
                               f"{system_path}/T{trj_index}/common_atoms.xtc")
         # only one common reference
@@ -19,6 +18,12 @@ def align_trajectories(trj_index):
                   filename=f"{system_path}/T{trj_index}/aligned_common_atoms.xtc").run()
         print(f"aligned, writing {system_path}/T{trj_index}/aligned_common_atoms.xtc")
 
-pool = Pool()
+
+@uf.get_timing
+def align_trajectories_parallel():
+    pool = Pool()
+    pool.map(align_trajectories, trj_indices)
+
+
 trj_indices = range(1, sd.N_TRJ+1)
-pool.map(align_trajectories, trj_indices)
+align_trajectories_parallel()

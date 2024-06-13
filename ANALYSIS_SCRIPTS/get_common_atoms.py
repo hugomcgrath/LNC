@@ -1,5 +1,7 @@
 import shared_data as sd
 import MDAnalysis as mda
+from multiprocessing import Pool
+import utility_functions as uf
 
 
 # find intersections
@@ -8,7 +10,7 @@ for system_name, system_path in sd.SYSTEMS.items():
     pdb = f"{system_path}/system.pdb"
     print(f"Loading {pdb}")
     universe = mda.Universe(pdb)
-    selection = universe.select_atoms(f"{sd.HEAVY_ATOMS_SELECTION_KEYWORD} and {sd.NUCLEIC_PRUNED_SELECTION_KEYWORD}")
+    selection = universe.select_atoms(f"{sd.HEAVY_ATOMS_SELECTION_KEYWORD} or {sd.NUCLEIC_PRUNED_SELECTION_KEYWORD}")
     selections[system_name] = set([(resid, resname, segid, name) for resid, resname, segid, name in zip(selection.resids, 
                                                                                                         selection.resnames, 
                                                                                                         selection.segids, 
@@ -33,16 +35,18 @@ for system_name, system_path in sd.SYSTEMS.items():
     print(f"wrote {system_path}/common_atoms.pdb")
 
 # write trajectories with common atoms
-for system_name, system_path in sd.SYSTEMS.items():
-    pdb_common_path = f"{system_path}/common_atoms.pdb"
-    selection_string = "index"
-    with open(pdb_common_path, "r") as file:
-        lines = file.readlines()
-        for line in lines:
-            if "ATOM" in line:
-                index = line[6:11].strip()
-                selection_string += f" {index}"
-    for trj_index in range(1, sd.N_TRJ+1):
+
+def write_common_trajectories(trj_index):
+    for system_path in sd.SYSTEMS.values():
+        pdb_common_path = f"{system_path}/common_atoms.pdb"
+        selection_string = "index"
+        with open(pdb_common_path, "r") as file:
+            lines = file.readlines()
+            index = -1
+            for line in lines:
+                if "ATOM" in line:
+                    index += 1
+                    selection_string += f" {index}"
         universe = mda.Universe(f"{system_path}/system.pdb", 
                                 f"{system_path}/T{trj_index}/traj_pruned.xtc")
         selection = universe.select_atoms(selection_string)
@@ -50,3 +54,13 @@ for system_name, system_path in sd.SYSTEMS.items():
         selection.write(f"{system_path}/T{trj_index}/common_atoms.xtc",
                         frames=universe.trajectory[:sd.TRJ_LEN])
         print(f"wrote {system_path}/T{trj_index}/common_atoms.xtc")
+
+
+@uf.get_timing
+def write_common_trajectories_parallel():
+    pool = Pool()
+    pool.map(write_common_trajectories, trj_indices)
+
+
+trj_indices = range(1, sd.N_TRJ+1)
+write_common_trajectories_parallel()

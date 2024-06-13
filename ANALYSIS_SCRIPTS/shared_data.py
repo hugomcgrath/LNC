@@ -9,7 +9,6 @@ N_CROSS_VALIDATION_COMBINATIONS = 20
 N_TIME_WINDOWS = 1
 # if set to True, half of the labels are randomly set to incorrect values
 # this should ideally result in accuracy close to 0.5
-# WRONG_LABELS = True
 WRONG_LABELS = False
 NORMALIZE_BY_AVERAGE = True
 
@@ -40,7 +39,7 @@ GRID_POINT_RADIUS = 15
 GRID_RANGE_X = range(-3*GRID_SPACING, 4*GRID_SPACING, GRID_SPACING)
 GRID_RANGE_Y = range(-3*GRID_SPACING, 4*GRID_SPACING, GRID_SPACING)
 GRID_RANGE_Z = range(-3*GRID_SPACING, 4*GRID_SPACING, GRID_SPACING)
-GRID_POINTS = product(GRID_RANGE_X, GRID_RANGE_Y, GRID_RANGE_Z)
+GRID_POINTS = [_ for _ in product(GRID_RANGE_X, GRID_RANGE_Y, GRID_RANGE_Z)]
 SELECTION_DICT = {
     f"grid_{i}:{j}:{k}": "all" for i, j, k in GRID_POINTS
 }
