@@ -10,7 +10,7 @@ config_id = result_path.split("/")[-1].split("_")[-1].strip(".npy")
 y_predicted = np.load(result_path)
 cf = ConfigFile(f"{sd.CONFIG_FILES_DIR}/config_{config_id}.yaml")
 y = uf.get_y(cf)
-accuracy_mean, accuracy_sem = uf.get_accuracy_mean_and_sem(y_predicted, y, partition_name, 5)
+accuracy_mean, accuracy_sem = uf.get_accuracy_mean_and_sem(result_path)
 
 print(f"result array size: {y_predicted.shape}")
 print("result array:")

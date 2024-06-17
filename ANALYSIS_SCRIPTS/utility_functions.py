@@ -181,41 +181,41 @@ def relabel_chains(pdb_in, pdb_out, chain_map):
 def get_selection_keyword_indices(pdb, selection_name, selection_keyword):
     universe = mda.Universe(pdb)
     reference_point = universe.select_atoms(sd.REFERENCE_POINT).center_of_geometry()
-    selection_keyword += f" and ({sd.HEAVY_ATOMS_SELECTION_KEYWORD}) or {sd.NUCLEIC_PRUNED_SELECTION_KEYWORD} and (not {sd.REFERENCE_POINT})"
     
-    segment_selection_dict = {
-        "e1": f" and (prop x > {reference_point[0]} and prop y > {reference_point[1]} and prop z > {reference_point[2]})",
-        "e2": f" and (prop x < {reference_point[0]} and prop y > {reference_point[1]} and prop z > {reference_point[2]})",
-        "e3": f" and (prop x > {reference_point[0]} and prop y < {reference_point[1]} and prop z > {reference_point[2]})",
-        "e4": f" and (prop x > {reference_point[0]} and prop y > {reference_point[1]} and prop z < {reference_point[2]})",
-        "e5": f" and (prop x < {reference_point[0]} and prop y < {reference_point[1]} and prop z > {reference_point[2]})",
-        "e6": f" and (prop x < {reference_point[0]} and prop y > {reference_point[1]} and prop z < {reference_point[2]})",
-        "e7": f" and (prop x > {reference_point[0]} and prop y < {reference_point[1]} and prop z < {reference_point[2]})",
-        "e8": f" and (prop x < {reference_point[0]} and prop y < {reference_point[1]} and prop z < {reference_point[2]})",
-    }
-    for segment_name, segment_selection_keyword in segment_selection_dict.items():
-        if segment_name in selection_name:
-            selection_keyword += segment_selection_keyword
+    if "_e" in selection_name:
+        segment_selection_dict = {
+            "e1": f" and (prop x > {reference_point[0]} and prop y > {reference_point[1]} and prop z > {reference_point[2]})",
+            "e2": f" and (prop x < {reference_point[0]} and prop y > {reference_point[1]} and prop z > {reference_point[2]})",
+            "e3": f" and (prop x > {reference_point[0]} and prop y < {reference_point[1]} and prop z > {reference_point[2]})",
+            "e4": f" and (prop x > {reference_point[0]} and prop y > {reference_point[1]} and prop z < {reference_point[2]})",
+            "e5": f" and (prop x < {reference_point[0]} and prop y < {reference_point[1]} and prop z > {reference_point[2]})",
+            "e6": f" and (prop x < {reference_point[0]} and prop y > {reference_point[1]} and prop z < {reference_point[2]})",
+            "e7": f" and (prop x > {reference_point[0]} and prop y < {reference_point[1]} and prop z < {reference_point[2]})",
+            "e8": f" and (prop x < {reference_point[0]} and prop y < {reference_point[1]} and prop z < {reference_point[2]})",
+        }
+        for segment_name, segment_selection_keyword in segment_selection_dict.items():
+            if segment_name in selection_name:
+                selection_keyword += segment_selection_keyword
 
     if "grid" in selection_name:
         grid_point = np.array([float(grid_point_coordinate) for grid_point_coordinate in selection_name.split("_")[-1].split(":")])
         grid_point += reference_point
         selection_keyword += (
-            f" and prop x < {grid_point[0] + sd.GRID_POINT_RADIUS}"
+            f" and (prop x < {grid_point[0] + sd.GRID_POINT_RADIUS}"
             f" and prop x > {grid_point[0] - sd.GRID_POINT_RADIUS}"
             f" and prop y < {grid_point[1] + sd.GRID_POINT_RADIUS}"
             f" and prop y > {grid_point[1] - sd.GRID_POINT_RADIUS}"
             f" and prop z < {grid_point[2] + sd.GRID_POINT_RADIUS}"
-            f" and prop z > {grid_point[2] - sd.GRID_POINT_RADIUS}"
+            f" and prop z > {grid_point[2] - sd.GRID_POINT_RADIUS})"
         )
-    selection = universe.select_atoms(selection_keyword, updating=False)
+    
+    selection = universe.select_atoms(selection_keyword)
     if selection.n_atoms == 0:
         return None
-    else:
-        selection_keyword_indices = "index"
-        for index in selection.indices:
-            selection_keyword_indices += f" {index}"
-        return selection_keyword_indices
+    selection_keyword = "index"
+    for index in selection.indices:
+        selection_keyword += f" {index}"
+    return selection_keyword
 
 
 def get_time_windowed_data(data, time_window_index):

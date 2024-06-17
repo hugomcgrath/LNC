@@ -11,6 +11,7 @@ N_TIME_WINDOWS = 1
 # this should ideally result in accuracy close to 0.5
 WRONG_LABELS = False
 NORMALIZE_BY_AVERAGE = True
+MIN_ATOMS = 50
 
 BASE_DIR = "/home/hmcgrat/LNC"
 RESULTS = f"{BASE_DIR}/RESULTS"
@@ -30,7 +31,7 @@ PAIRS = {
 PREALIGNMENT_SELECTION = "name CA P"
 ALIGNMENT_SELECTION = "name CA P"
 HEAVY_ATOMS_SELECTION_KEYWORD = "type C O N S P"
-NUCLEIC_PRUNED_SELECTION_KEYWORD = "(nucleic and (nucleicbackbone or name C1' C4' N1 N3 C5 C8))"
+NUCLEIC_PRUNED_SELECTION_KEYWORD = "(nucleicbackbone or name C1' C4' N1 N3 C5 C8)"
 REFERENCE_POINT = "segid 9"
 
 # selections around grid points
@@ -68,9 +69,9 @@ MODEL_HPS = {
     # "random_forest": {"n_estimators": [50, 100, 250]},
 }
 FEATURE_HPS = {
-    "cartesian": {},
+    # "cartesian": {},
     # "cartesian_averaged": {"window_width": [10], "overlapping": [False]},
-    # "rmsf": {"window_width": [10], "overlapping": [False]},
+    "rmsf": {"window_width": [10], "overlapping": [False]},
     # "bat": {},
 }
 PARTITION_PERCENTAGES = {
