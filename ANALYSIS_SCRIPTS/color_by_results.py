@@ -9,11 +9,11 @@ def extract_results_file_config_id(result_path):
 
 
 def color_ribosome_by_results(result_type, selection_type, dim_reduction_name, model_name, feature_type, partition_name):
-    name = f"{selection_type}_{dim_reduction_name}_{model_name}_{partition_name}_colored_by_{result_type}"
+    name = f"{selection_type}_{dim_reduction_name}_{model_name}_{feature_type}_{partition_name}_{result_type}"
     RESULTS = sd.RESULTS
     pdb = f"{sd.SYSTEMS['LNC']}/added_antibiotic.pdb"
     universe = mda.Universe(pdb)
-    with open(f"{sd.SYSTEMS['LNC']}/{selection_type}_{dim_reduction_name}_{model_name}_{partition_name}_{result_type}_config_indices.txt", "w") as file:
+    with open(f"{sd.SYSTEMS['LNC']}/{name}_config_indices.txt", "w") as file:
         result_paths = sorted(glob(f"{RESULTS}/*{dim_reduction_name}_{model_name}_{feature_type}_{partition_name}*"), key=extract_results_file_config_id)
         for result_path in result_paths:
             cf = uf.get_config_file_from_file_path(result_path)
@@ -48,7 +48,7 @@ def color_ribosome_by_results(result_type, selection_type, dim_reduction_name, m
     selection_all.write(f"{sd.SYSTEMS['LNC']}/{name}.pdb")
 
 
-result_type = "sd"
+result_type = "accuracy"
 selection_type = "grid"
 dim_reduction_name = "passthrough"
 model_name = "linear"
