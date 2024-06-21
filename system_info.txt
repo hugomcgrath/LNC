@@ -8,8 +8,9 @@ script run order:
 - align_antibiotic.py
 - add_antibiotic_to_pdb.py
 - write_selections.py
+- align_selections.py
 - combine_trajectories.py
 - write_hp_config_files.py
-- find_worst_case_selection.py
+- find_largest_selection.py
 - run_classification.sh (owl)
 - check_logfiles.py
